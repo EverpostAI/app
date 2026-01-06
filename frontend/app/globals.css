@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@theme {
+    /* Brand Colors - Editorial/Content Focus */
+    --color-ink: #0a0a0a;
+    --color-paper: #fafafa;
+    --color-accent: #ff4444;
+    --color-accent-hover: #e63939;
+    --color-muted: #6b7280;
+    --color-border: #e5e7eb;
+    --color-surface: #ffffff;
+}
+
+/* Component Styles - OUTSIDE @theme block */
+@layer components {
+    .btn-main {
+        @apply px-6 py-3 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed;
+    }
+
+    .btn-secondary {
+        @apply px-6 py-3 bg-white border-2 border-ink text-ink font-semibold rounded-lg hover:bg-ink hover:text-white transition-colors;
+    }
+
+    .btn-ghost {
+        @apply px-4 py-2 text-muted hover:text-ink hover:bg-gray-100 rounded-lg transition-colors;
+    }
+
+    .input-field {
+        @apply w-full px-4 py-3 border-2 border-border rounded-lg focus:border-accent focus:outline-none transition-colors placeholder:text-gray-400;
+    }
+
+    .card {
+        @apply bg-white border border-border rounded-xl p-6 hover:border-accent transition-colors;
+    }
+
+    .card-flat {
+        @apply bg-white rounded-xl p-6;
+    }
+
+    .section-title {
+        @apply text-2xl md:text-3xl font-bold text-ink mb-2;
+    }
+
+    .section-subtitle {
+        @apply text-muted text-lg;
+    }
+
+    .btn-hero {
+        @apply px-12 py-5 bg-accent text-white font-bold text-xl rounded-lg hover:bg-accent-hover transition-colors;
+    }
+}
+
+/* React Big Calendar Custom Styles */
+@layer utilities {
+
+    /* Calendar Navigation Buttons */
+    .rbc-toolbar button {
+        @apply px-4 py-2 bg-white border-2 border-border text-ink font-semibold rounded-lg hover:bg-ink hover:text-white transition-colors cursor-pointer;
+    }
+
+    .rbc-toolbar button:active,
+    .rbc-toolbar button.rbc-active {
+        @apply bg-accent text-white border-accent;
+    }
+
+    .rbc-toolbar button:focus {
+        @apply outline-none ring-2 ring-accent ring-offset-2;
+    }
+
+    /* Calendar Header */
+    .rbc-toolbar {
+        @apply flex flex-wrap gap-2 mb-4 items-center justify-between;
+    }
+
+    .rbc-toolbar-label {
+        @apply text-xl font-bold text-ink flex-grow text-center;
+    }
+
+    /* Calendar Grid */
+    .rbc-month-view,
+    .rbc-time-view,
+    .rbc-agenda-view {
+        @apply border-2 border-border rounded-lg overflow-hidden;
+    }
+
+    .rbc-header {
+        @apply bg-paper border-b-2 border-border py-3 px-2 font-semibold text-ink text-sm uppercase tracking-wide;
+    }
+
+    .rbc-today {
+        @apply bg-accent/10;
+    }
+
+    .rbc-event {
+        @apply bg-accent text-white rounded px-2 py-1 text-xs font-medium;
+    }
+
+    .rbc-event:hover {
+        @apply bg-accent-hover cursor-pointer;
+    }
+
+    .rbc-day-bg:hover {
+        @apply bg-paper;
+    }
+
+    .rbc-off-range-bg {
+        @apply bg-gray-50;
+    }
+
+    .rbc-date-cell {
+        @apply p-2 text-right;
+    }
+
+    .rbc-button-link {
+        @apply text-ink font-medium;
+    }
+
+    .rbc-show-more {
+        @apply text-accent font-semibold text-xs hover:underline cursor-pointer;
+    }
+}
+
+@keyframes slideFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(2rem);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-fade-in {
+    animation: slideFadeIn 0.7s forwards;
+}
+
+/* Feature Card Entrance - from left with clockwise rotation */
+@keyframes slideRotateIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-100px) rotate(-15deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg);
+    }
+}
+
+/* Feature Card Exit - to right with clockwise rotation */
+@keyframes slideRotateOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(100px) rotate(15deg);
+    }
+}
+
+.animate-slide-rotate-in {
+    animation: slideRotateIn 0.8s ease-out forwards;
+}
+
+.animate-slide-rotate-out {
+    animation: slideRotateOut 0.6s ease-in forwards;
+}
