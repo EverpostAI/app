@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum Platform {
+  TWITTER
+  INSTAGRAM
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+}
+
+enum ContentType {
+  VIDEO
+  IMAGE
+  TEXT
+  THREAD
+  REEL
+}
+
+model User {
+  id       String  @id @default(uuid()) @map("id")
+  email    String  @unique @map("email") @db.VarChar(255)
+  password String?
+  googleId String? @unique
+
+  profession       String           @map("profession")
+  contentPlans     ContentPlan[]
+  contentHistories ContentHistory[]
+
+  freePlanStart DateTime?
+  editsThisWeek Int       @default(0)
+  lastEditReset DateTime?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model ContentPlan {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weekStart DateTime @default(now())
+  posts     Post[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, weekStart])
+  @@index([userId])
+  @@map("content_plans")
+}
+
+model Post {
+  id           String      @id @default(uuid())
+  planId       String
+  plan         ContentPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  day          WeekDay
+  platform     Platform
+  contentType  ContentType
+  idea         String
+  hook         String
+  scheduledFor DateTime?   @map("scheduled_for")
+  metadata     Json?
+  completed    Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([planId])
+  @@map("posts")
+}
+
+model ContentHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  theme     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("content_histories")
+}
