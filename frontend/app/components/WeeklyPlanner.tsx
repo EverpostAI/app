@@ -17,33 +17,28 @@ export const WeeklyPlanner = () => {
         isGenerating,
         regeneratingIndex,
         freePlanStart,
-
     } = useUserContent();
 
     const [showConfirmModal, setShowConfirmModal] = useState(true);
+
     const completedCount = weeklyPlan.filter((item) => item.completed).length;
     const completionPercentage =
         weeklyPlan.length > 0 ? Math.round((completedCount / weeklyPlan.length) * 100) : 0;
 
+    // -------------------------------
     // Countdown timer (7-day cooldown)
-    const [timeLeft, setTimeLeft] = useState<number | null>(
-        freePlanStart ? Math.max(0, 7 * 24 * 60 * 60 * 1000 - (Date.now() - freePlanStart.getTime())) : null
-    );
+    // -------------------------------
+    const calculateTimeLeft = (start?: Date) =>
+        start ? Math.max(0, 7 * 24 * 60 * 60 * 1000 - (Date.now() - start.getTime())) : null;
+
+    const [timeLeft, setTimeLeft] = useState<number | null>(calculateTimeLeft(freePlanStart));
 
     useEffect(() => {
         if (!freePlanStart) return setTimeLeft(null);
 
-        const updateTime = () => {
-            const diff = 7 * 24 * 60 * 60 * 1000 - (Date.now() - freePlanStart.getTime());
-            setTimeLeft(diff > 0 ? diff : 0);
-        };
-
-        updateTime(); // update immediately on mount
-        const interval = setInterval(updateTime, 1000);
-
+        const interval = setInterval(() => setTimeLeft(calculateTimeLeft(freePlanStart)), 1000);
         return () => clearInterval(interval);
     }, [freePlanStart]);
-
 
     const handleGenerateClick = () => {
         if (weeklyPlan.length > 0) {
@@ -63,6 +58,8 @@ export const WeeklyPlanner = () => {
         const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
         return `${hours}h ${minutes}m`;
     };
+
+    const isButtonDisabled = isGenerating || (timeLeft && timeLeft > 0) || false;
 
     return (
         <div className="min-h-screen bg-paper">
@@ -112,7 +109,7 @@ export const WeeklyPlanner = () => {
                         </p>
                         <button
                             onClick={generateWeeklyPlan}
-                            disabled={isGenerating || (timeLeft && timeLeft > 0)}
+                            disabled={isButtonDisabled}
                             className="btn-main disabled:opacity-50"
                         >
                             <Sparkles className="w-4 h-4 inline mr-2" strokeWidth={2.5} />

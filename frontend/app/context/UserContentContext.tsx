@@ -19,7 +19,7 @@ interface WeeklyContentPlan {
 
 interface UserContentContextType {
     hydrated: boolean;
-    userId: string | null;
+    userId: any;
     setUserId: (id: string | null) => void;
     userProfession: string | null;
     setUserProfession: (p: string | null) => void;
