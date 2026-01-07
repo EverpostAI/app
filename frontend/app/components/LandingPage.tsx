@@ -17,10 +17,10 @@ export const LandingPage = () => {
             const windowHeight = window.innerHeight;
 
             // Trigger when the panel's top reaches ~50% of viewport height
-            const triggerPoint = windowHeight * 0.5;
+            const triggerPoint = windowHeight * 0.9;
 
             // We want full animation complete when panel top reaches top of viewport (or slightly above)
-            const fullPoint = 0; // or -100 if you want it done a bit earlier
+            const fullPoint = 0;
             let progress = 0; // Declare once here
             // Calculate progress: 0 when panel top is at triggerPoint, 1 when at fullPoint
             if (rect.top >= triggerPoint) {

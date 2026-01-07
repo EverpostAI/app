@@ -1,4 +1,4 @@
-import { ContentType, Platform, WeekDay } from '../generated/prisma/enums';
+import { ContentType, Platform, WeekDay } from '@prisma/client';
 
 export const dayToEnum = (day: string): WeekDay => {
     const mapping: Record<string, WeekDay> = {
