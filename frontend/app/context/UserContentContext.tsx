@@ -10,6 +10,7 @@ export interface ContentItem {
     hook: string;
     completed: boolean;
     scheduledFor?: string | null; // optional specific datetime
+    isManual?: boolean;
 }
 
 interface WeeklyContentPlan {
@@ -35,6 +36,7 @@ interface UserContentContextType {
     planLockedMessage: any;
     setPlanLockedMessage: any;
     generateWeeklyPlan: () => Promise<void>;
+    createEmptyWeek: () => void;
     regenerateSingle: (index: number) => Promise<void>;
     saveEdit: (index: number, content: string) => void;
     toggleComplete: (index: number) => void;
@@ -188,6 +190,34 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
             setIsGenerating(false);
         }
     };
+    const createEmptyWeek = () => {
+        const monday = new Date();
+        monday.setHours(0, 0, 0, 0);
+
+        // normalize to Monday
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff);
+
+        const emptyPosts: ContentItem[] = Array.from({ length: 7 }).map((_, i) => ({
+            id: crypto.randomUUID(),
+            day: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][i],
+            platform: "",
+            contentType: "",
+            idea: "",
+            hook: "",
+            completed: false,
+            isManual: true,
+        }));
+
+        setCurrentWeeklyPlan({
+            weekStart: monday.toISOString(),
+            posts: emptyPosts,
+        });
+
+        // Manual weeks should not be locked
+        setPlanLockedMessage(null);
+    };
 
 
     const regenerateSingle = async (index: number) => {
@@ -328,13 +358,14 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
                 setPlanLockedMessage,
                 planLockedMessage,
                 generateWeeklyPlan,
+                createEmptyWeek,
                 regenerateSingle,
                 saveEdit,
                 toggleComplete,
 
                 isGenerating,
                 regeneratingIndex,
-                freePlanStart, // ← add this
+                freePlanStart,
             }}
         >
             {children}

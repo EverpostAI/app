@@ -5,12 +5,15 @@ import { useUserContent } from "../context/UserContentContext";
 import { ContentCard } from "./ContentCard";
 import { ContentCalendar } from "./ContentCalendar";
 
+type PlannerMode = "ai" | "manual";
+
 export const WeeklyPlanner = () => {
     const {
         userProfession,
         weeklyPlan,
         contentHistory,
         generateWeeklyPlan,
+        createEmptyWeek,
         regenerateSingle,
         saveEdit,
         toggleComplete,
@@ -18,7 +21,7 @@ export const WeeklyPlanner = () => {
         regeneratingIndex,
         freePlanStart,
     } = useUserContent();
-
+    const [plannerMode, setPlannerMode] = useState<"ai" | "manual" | null>(null);
     const [showConfirmModal, setShowConfirmModal] = useState(true);
 
     const completedCount = weeklyPlan.filter((item) => item.completed).length;
@@ -58,8 +61,10 @@ export const WeeklyPlanner = () => {
         const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
         return `${hours}h ${minutes}m`;
     };
-
     const isButtonDisabled = isGenerating || (timeLeft && timeLeft > 0) || false;
+    const isWeekComplete =
+        weeklyPlan.length > 0 &&
+        weeklyPlan.every((item) => item.completed);
 
     return (
         <div className="min-h-screen bg-paper">
@@ -102,24 +107,77 @@ export const WeeklyPlanner = () => {
                 {/* Weekly Plan */}
                 {weeklyPlan.length === 0 ? (
                     <div className="card-flat border-2 border-dashed border-border text-center py-16">
-                        <Calendar className="w-16 h-16 text-muted mx-auto mb-4" strokeWidth={1.5} />
-                        <h3 className="text-xl font-bold text-ink mb-2">Ready to Plan Your Week?</h3>
+                        <Calendar className="w-16 h-16 text-muted mx-auto mb-4" />
+
+                        <h3 className="text-xl font-bold text-ink mb-2">
+                            How do you want to plan this week?
+                        </h3>
+
                         <p className="text-muted mb-6 max-w-md mx-auto">
-                            Generate a full week of content ideas tailored to your profession in seconds.
+                            Generate ideas with AI or plan everything yourself.
                         </p>
-                        <button
-                            onClick={generateWeeklyPlan}
-                            disabled={isButtonDisabled}
-                            className="btn-main disabled:opacity-50"
-                        >
-                            <Sparkles className="w-4 h-4 inline mr-2" strokeWidth={2.5} />
-                            {timeLeft && timeLeft > 0 ? `Wait ${formatTime(timeLeft)}` : "Generate Content Plan"}
-                        </button>
+
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            {/* AI option */}
+                            <button
+                                onClick={() => {
+                                    setPlannerMode("ai");
+                                    generateWeeklyPlan();
+                                }}
+                                disabled={isButtonDisabled}
+                                className="btn-main"
+                            >
+                                <Sparkles className="w-4 h-4 inline mr-2" />
+                                Generate with AI
+                            </button>
+
+                            {/* Manual option */}
+                            <button
+                                onClick={() => {
+                                    setPlannerMode("manual");
+                                    createEmptyWeek();
+                                }}
+                                className="btn-secondary"
+                            >
+                                <Calendar className="w-4 h-4 inline mr-2" />
+                                Plan Manually
+                            </button>
+                        </div>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Left column - content cards */}
-                        <div className="space-y-4">
+                        <div
+                            className={`space-y-4 transition-opacity ${isWeekComplete ? "opacity-50 pointer-events-none" : ""
+                                }`}
+                        >
+                            {isWeekComplete && (
+                                <div className="card border-2 border-green-500 bg-green-50">
+                                    <h3 className="text-lg font-bold text-ink mb-1">
+                                        🎉 Week Complete
+                                    </h3>
+                                    <p className="text-sm text-muted">
+                                        You’ve completed all planned content for this week.
+                                    </p>
+
+                                    <div className="mt-4 flex gap-3">
+                                        <button
+                                            className="btn-main"
+                                            onClick={generateWeeklyPlan}
+                                        >
+                                            Plan Next Week
+                                        </button>
+
+                                        <button
+                                            className="btn-secondary"
+                                            onClick={() => window.location.href = "/dashboard"}
+                                        >
+                                            View History
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Progress card */}
                             <div className="card border-2 border-accent/20 bg-white">
                                 <div className="flex items-center justify-between mb-3">
@@ -175,7 +233,7 @@ export const WeeklyPlanner = () => {
 
                         {/* Right column - calendar */}
                         <div className="lg:sticky lg:top-6 lg:self-start">
-                            <ContentCalendar />
+                            <ContentCalendar isWeekComplete={isWeekComplete} />
                         </div>
                     </div>
                 )}

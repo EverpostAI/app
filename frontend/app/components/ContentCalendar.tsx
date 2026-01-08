@@ -4,8 +4,10 @@ import { localizer } from "../utils/calendarSetup";
 import { useUserContent } from "../context/UserContentContext";
 import { mapAllEvents } from "../utils/maps";
 import { X, Calendar as CalendarIcon, Hash, Zap, CheckCircle2, Clock } from "lucide-react";
-
-export const ContentCalendar = () => {
+interface ContentCalendarProps {
+    isWeekComplete: boolean;
+}
+export const ContentCalendar: React.FC<ContentCalendarProps> = (isWeekComplete) => {
     const { weeklyPlan, contentHistory, weekStartMonday } = useUserContent();
     // ✅ Memoize events to prevent duplicates in Strict Mode
     const events = useMemo(() => {
