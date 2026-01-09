@@ -1,13 +1,11 @@
 "use client";
-import { Calendar, RefreshCw, Sparkles, TrendingUp } from "lucide-react";
+import { Calendar, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUserContent } from "../context/UserContentContext";
-import { ContentCard } from "./components/ContentCard";
 import { ContentCalendar } from "./components/ContentCalendar";
 import { WeeklyPlannerList } from "./components/WeeklyPlannerList";
 import { WeeklyPlannerHeader } from "./components/WeeklyPlannerHeader";
 
-type PlannerMode = "ai" | "manual";
 
 export const WeeklyPlanner = () => {
     const {
@@ -23,8 +21,6 @@ export const WeeklyPlanner = () => {
         regeneratingIndex,
         freePlanStart,
     } = useUserContent();
-    const [plannerMode, setPlannerMode] = useState<"ai" | "manual" | null>(null);
-    const [showConfirmModal, setShowConfirmModal] = useState(true);
 
     const completedCount = weeklyPlan.filter((item) => item.completed).length;
     const completionPercentage =
@@ -45,20 +41,7 @@ export const WeeklyPlanner = () => {
         return () => clearInterval(interval);
     }, [freePlanStart]);
 
-    const handleGenerateClick = () => {
-        if (weeklyPlan.length > 0) {
-            setShowConfirmModal(true);
-        } else {
-            generateWeeklyPlan();
-        }
-    };
-
-    const confirmGenerate = () => {
-        setShowConfirmModal(false);
-        generateWeeklyPlan();
-    };
-
-    const isButtonDisabled = isGenerating || (timeLeft && timeLeft > 0) || false;
+    const isButtonDisabled = isGenerating || (timeLeft !== null && timeLeft > 0);
     const isWeekComplete =
         weeklyPlan.length > 0 &&
         weeklyPlan.every((item) => item.completed);
@@ -70,7 +53,7 @@ export const WeeklyPlanner = () => {
                 <WeeklyPlannerHeader
                     userProfession={userProfession}
                     timeLeft={timeLeft}
-                    onGenerate={handleGenerateClick}
+                    onGenerate={generateWeeklyPlan}
                     isGenerating={isGenerating}
                 />
                 {/* Weekly Plan */}
@@ -89,10 +72,7 @@ export const WeeklyPlanner = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             {/* AI option */}
                             <button
-                                onClick={() => {
-                                    setPlannerMode("ai");
-                                    generateWeeklyPlan();
-                                }}
+                                onClick={generateWeeklyPlan}
                                 disabled={isButtonDisabled}
                                 className="btn-main"
                             >
@@ -102,10 +82,7 @@ export const WeeklyPlanner = () => {
 
                             {/* Manual option */}
                             <button
-                                onClick={() => {
-                                    setPlannerMode("manual");
-                                    createEmptyWeek();
-                                }}
+                                onClick={createEmptyWeek}
                                 className="btn-secondary"
                             >
                                 <Calendar className="w-4 h-4 inline mr-2" />
