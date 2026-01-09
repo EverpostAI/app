@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { Calendar, View } from "react-big-calendar";
-import { localizer } from "../utils/calendarSetup";
-import { useUserContent } from "../context/UserContentContext";
-import { mapAllEvents } from "../utils/maps";
+import { localizer } from "../../utils/calendarSetup";
+import { useUserContent } from "../../context/UserContentContext";
+import { mapAllEvents } from "../../utils/maps";
 import { X, Calendar as CalendarIcon, Hash, Zap, CheckCircle2, Clock } from "lucide-react";
 interface ContentCalendarProps {
     isWeekComplete: boolean;
