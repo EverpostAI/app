@@ -5,6 +5,7 @@ interface WeeklyPlannerHeaderProps {
     timeLeft: number | null;
     onGenerate: () => void;
     isGenerating: boolean;
+    isDisabled: boolean; // ✅
 }
 
 const formatTime = (ms: number) => {
@@ -17,7 +18,8 @@ export const WeeklyPlannerHeader: React.FC<WeeklyPlannerHeaderProps> = ({
     userProfession,
     timeLeft,
     onGenerate,
-    isGenerating
+    isGenerating,
+    isDisabled
 }) => {
     return (
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -33,7 +35,7 @@ export const WeeklyPlannerHeader: React.FC<WeeklyPlannerHeaderProps> = ({
 
             {/* Generate / Countdown */}
             <div>
-                {timeLeft && timeLeft > 0 ? (
+                {timeLeft !== null && timeLeft > 0 ? (
                     <p className="text-sm text-red-500 font-medium">
                         Free plan users can only generate a new week once per week.
                         <br />
@@ -42,7 +44,7 @@ export const WeeklyPlannerHeader: React.FC<WeeklyPlannerHeaderProps> = ({
                 ) : (
                     <button
                         onClick={onGenerate}
-                        disabled={isGenerating}
+                        disabled={isDisabled}
                         className="btn-main whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <RefreshCw

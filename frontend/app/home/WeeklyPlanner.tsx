@@ -19,7 +19,7 @@ export const WeeklyPlanner = () => {
         toggleComplete,
         isGenerating,
         regeneratingIndex,
-        freePlanStart,
+        weekStartMonday
     } = useUserContent();
 
     const completedCount = weeklyPlan.filter((item) => item.completed).length;
@@ -29,22 +29,38 @@ export const WeeklyPlanner = () => {
     // -------------------------------
     // Countdown timer (7-day cooldown)
     // -------------------------------
-    const calculateTimeLeft = (start?: Date) =>
-        start ? Math.max(0, 7 * 24 * 60 * 60 * 1000 - (Date.now() - start.getTime())) : null;
+    const calculateTimeLeft = (weekStart?: Date | null) => {
+        if (!weekStart) return null;
 
-    const [timeLeft, setTimeLeft] = useState<number | null>(calculateTimeLeft(freePlanStart));
+        const nextMonday = new Date(weekStart);
+        nextMonday.setDate(nextMonday.getDate() + 7);
+
+        return Math.max(0, nextMonday.getTime() - Date.now());
+    };
+
+    const [timeLeft, setTimeLeft] = useState<number | null>(
+        calculateTimeLeft(weekStartMonday)
+    );
 
     useEffect(() => {
-        if (!freePlanStart) return setTimeLeft(null);
+        if (!weekStartMonday) {
+            setTimeLeft(null);
+            return;
+        }
 
-        const interval = setInterval(() => setTimeLeft(calculateTimeLeft(freePlanStart)), 1000);
+        const interval = setInterval(() => {
+            setTimeLeft(calculateTimeLeft(weekStartMonday));
+        }, 1000);
+
         return () => clearInterval(interval);
-    }, [freePlanStart]);
+    }, [weekStartMonday]);
 
-    const isButtonDisabled = isGenerating || (timeLeft !== null && timeLeft > 0);
     const isWeekComplete =
         weeklyPlan.length > 0 &&
         weeklyPlan.every((item) => item.completed);
+    const isButtonDisabled =
+        isGenerating ||
+        (!isWeekComplete && timeLeft !== null && timeLeft > 0);
 
     return (
         <div className="min-h-screen bg-paper">
@@ -55,6 +71,7 @@ export const WeeklyPlanner = () => {
                     timeLeft={timeLeft}
                     onGenerate={generateWeeklyPlan}
                     isGenerating={isGenerating}
+                    isDisabled={isButtonDisabled} // ✅
                 />
                 {/* Weekly Plan */}
                 {weeklyPlan.length === 0 ? (
