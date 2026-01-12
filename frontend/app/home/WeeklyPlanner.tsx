@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 import { Calendar, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUserContent } from "../context/UserContentContext";
@@ -62,6 +63,14 @@ export const WeeklyPlanner = () => {
         isGenerating ||
         (!isWeekComplete && timeLeft !== null && timeLeft > 0);
 
+    const handleGenerateWeek = async (isManual: boolean) => {
+        try {
+            await generateWeeklyPlan(isManual); // pass the flag
+        } catch (err) {
+            console.error("Failed to generate weekly plan:", err);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-paper">
             <div className="max-w-7xl mx-auto px-4 py-12">
@@ -71,7 +80,6 @@ export const WeeklyPlanner = () => {
                     timeLeft={timeLeft}
                     onGenerate={generateWeeklyPlan}
                     isGenerating={isGenerating}
-                    isDisabled={isButtonDisabled} // ✅
                 />
                 {/* Weekly Plan */}
                 {weeklyPlan.length === 0 ? (
@@ -89,7 +97,7 @@ export const WeeklyPlanner = () => {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             {/* AI option */}
                             <button
-                                onClick={generateWeeklyPlan}
+                                onClick={() => handleGenerateWeek(false)} // AI
                                 disabled={isButtonDisabled}
                                 className="btn-main"
                             >
@@ -99,13 +107,14 @@ export const WeeklyPlanner = () => {
 
                             {/* Manual option */}
                             <button
-                                onClick={createEmptyWeek}
+                                onClick={() => handleGenerateWeek(true)} // Manual
                                 className="btn-secondary"
                             >
                                 <Calendar className="w-4 h-4 inline mr-2" />
                                 Plan Manually
                             </button>
                         </div>
+
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

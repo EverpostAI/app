@@ -4,21 +4,24 @@ import * as userService from "../services/user.service";
 import * as contentPlanService from "../services/contentPlan.service";
 import * as contentHistoryService from "../services/contentHistory.service"
 
-const generateWeekBodySchema = z.object({ userId: z.string().uuid() });
+const generateWeekBodySchema = z.object({
+    userId: z.string().uuid(),
+    isManual: z.boolean().optional(),
+});
 
 // In your generateWeek controller
 export const generateWeek = async (req: Request, res: Response) => {
     const parseBody = generateWeekBodySchema.safeParse(req.body);
     if (!parseBody.success) return res.status(400).json({ error: parseBody.error.format() });
 
-    const { userId } = parseBody.data;
+    const { userId, isManual = true } = parseBody.data;
 
     const user = await userService.getUserById(userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     const lastPlan = await contentPlanService.getLatestContentPlan(userId);
 
     const now = new Date();
-    if (lastPlan) {
+    if (!isManual && lastPlan) {
         const lastWeekStart = new Date(lastPlan.weekStart);
         const diff = now.getTime() - lastWeekStart.getTime();
         if (diff < 7 * 24 * 60 * 60 * 1000) {
@@ -28,8 +31,6 @@ export const generateWeek = async (req: Request, res: Response) => {
         }
     }
     try {
-        const planData = await contentPlanService.generateWeeklyPlan(user);
-
         // FIXED: Always get the NEXT Monday (or today if Monday)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -45,10 +46,23 @@ export const generateWeek = async (req: Request, res: Response) => {
         weekStart.setDate(today.getDate() + daysUntilNextMonday);
         weekStart.setHours(0, 0, 0, 0);
 
-        console.log("Generating plan for upcoming week starting:", weekStart.toISOString());
+        console.log(
+            isManual
+                ? "Creating MANUAL plan for week starting:"
+                : "Generating AI plan for week starting:",
+            weekStart.toISOString()
+        );
+        // 🧠 Branch here — clean and obvious
+        const planData = isManual
+            ? contentPlanService.createEmptyWeek()
+            : await contentPlanService.generateWeeklyPlan(user);
 
-        const contentPlan = await contentPlanService.createWeeklyContentPlan(userId, weekStart, planData);
-
+        const contentPlan = await contentPlanService.createWeeklyContentPlan(
+            userId,
+            weekStart,
+            planData,
+            { isManual }
+        );
         return res.json({ contentPlan });
     } catch (err: any) {
         console.error("Generate week error:", err);

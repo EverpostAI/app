@@ -16,7 +16,6 @@ export const ContentCard = ({
     item,
     index,
     toggleComplete,
-    startEditing,
     regenerateSingle,
     saveEdit,
     isGenerating,
@@ -42,8 +41,8 @@ export const ContentCard = ({
                     <button
                         onClick={() => toggleComplete(index)}
                         className={`mt-1 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${item.completed
-                                ? "bg-green-500 border-green-500"
-                                : "border-gray-300 hover:border-purple-500"
+                            ? "bg-green-500 border-green-500"
+                            : "border-gray-300 hover:border-purple-500"
                             }`}
                     >
                         {item.completed && <Check className="w-4 h-4 text-white" />}
@@ -109,19 +108,19 @@ export const ContentCard = ({
                             }}
                             disabled={isLocked}
                             className={`p-2 rounded-lg transition-colors ${isLocked
-                                    ? "opacity-40 cursor-not-allowed"
-                                    : "hover:bg-gray-100"
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-gray-100"
                                 }`}
                             title={isLocked ? "Uncheck to edit" : "Edit"}
                         >
                             <Edit2 className="w-4 h-4 text-gray-600" />
                         </button>
-                        <button
+                        {/* <button
                             onClick={() => !isLocked && regenerateSingle(index)}
                             disabled={isGenerating || isLocked}
                             className={`p-2 rounded-lg transition-colors ${isLocked || isGenerating
-                                    ? "opacity-40 cursor-not-allowed"
-                                    : "hover:bg-gray-100"
+                                ? "opacity-40 cursor-not-allowed"
+                                : "hover:bg-gray-100"
                                 }`}
                             title={isLocked ? "Uncheck to regenerate" : "Regenerate"}
                         >
@@ -129,7 +128,7 @@ export const ContentCard = ({
                                 className={`w-4 h-4 text-gray-600 ${isGenerating ? "animate-spin" : ""
                                     }`}
                             />
-                        </button>
+                        </button> */}
                     </div>
                 )}
             </div>

@@ -32,6 +32,28 @@ export const createContentPlan = async (userId: string, weekStart: Date) => {
         },
     });
 };
+export const createEmptyWeek = () => {
+    const days = [
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
+    ];
+
+    return days.map((day) => ({
+        day,
+        platform: "INSTAGRAM",   // default to some platform
+        contentType: "TEXT",     // default contentType
+        idea: "Your idea here",
+        hook: "Your hook here",
+        optimalTime: "09:00",  // default so scheduling logic works
+        completed: false,
+        isManual: true,
+    }));
+};
 
 export const generateWeeklyPlan = async (user: any) => {
     const histories = user.contentHistories ?? [];
@@ -101,17 +123,21 @@ Return ONLY the JSON array with 7 items, one for each day. No markdown, no expla
     });
 };
 
-export const createWeeklyContentPlan = async (userId: string, weekStart: Date, planData: any[]) => {
+export const createWeeklyContentPlan = async (
+    userId: string,
+    weekStart: Date,
+    planData: any[],
+    options?: { isManual?: boolean } // 👈 important
+) => {
     return prisma.$transaction(async (tx) => {
-        const existing = await tx.contentPlan.findUnique({ where: { userId_weekStart: { userId, weekStart } } });
+        const existing = await tx.contentPlan.findUnique({
+            where: { userId_weekStart: { userId, weekStart } }
+        });
+
         if (existing) await tx.contentPlan.delete({ where: { id: existing.id } });
 
-        // ✅ Map optimal time to actual DateTime for each post
         const postsWithScheduledTime = planData.map((item) => {
-            console.log('Creating post with time:', item.day, item.optimalTime); // Debug log
             const scheduledDate = calculateScheduledDateTime(weekStart, item.day, item.optimalTime);
-            console.log('Calculated scheduledFor:', scheduledDate); // Debug log
-
             return {
                 day: item.day,
                 platform: item.platform,
@@ -131,15 +157,18 @@ export const createWeeklyContentPlan = async (userId: string, weekStart: Date, p
             },
             include: { posts: true },
         });
-        // Update user's freePlanStart
-        await tx.user.update({
-            where: { id: userId },
-            data: { freePlanStart: new Date() },
-        });
 
-        await tx.contentHistory.createMany({
-            data: planData.map((item) => ({ userId, theme: item.idea })),
-        });
+        // Only update freePlanStart + history for AI-generated weeks
+        if (!options?.isManual) {
+            await tx.user.update({
+                where: { id: userId },
+                data: { freePlanStart: new Date() },
+            });
+
+            await tx.contentHistory.createMany({
+                data: planData.map((item) => ({ userId, theme: item.idea })),
+            });
+        }
 
         return plan;
     });
