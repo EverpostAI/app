@@ -35,7 +35,7 @@ interface UserContentContextType {
     contentHistory: string[];
     planLockedMessage: any;
     setPlanLockedMessage: any;
-    generateWeeklyPlan: () => Promise<void>;
+    generateWeeklyPlan: (isManual?: boolean) => Promise<void>;
     createEmptyWeek: () => void;
     regenerateSingle: (index: number) => Promise<void>;
     saveEdit: (index: number, content: string) => void;
@@ -144,7 +144,7 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
     }, [userId]);
 
     // Generate full weekly plan
-    const generateWeeklyPlan = async () => {
+    const generateWeeklyPlan = async (isManual = true) => {
         if (!userId) return;
         setIsGenerating(true);
 

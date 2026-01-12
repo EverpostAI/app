@@ -32,6 +32,28 @@ export const createContentPlan = async (userId: string, weekStart: Date) => {
         },
     });
 };
+export const createEmptyWeek = () => {
+    const days = [
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY",
+    ];
+
+    return days.map((day) => ({
+        day,
+        platform: null,        // or a default if Prisma requires enum
+        contentType: null,     // same here
+        idea: "",
+        hook: "",
+        optimalTime: "09:00",  // default so scheduling logic works
+        completed: false,
+        isManual: true,
+    }));
+};
 
 export const generateWeeklyPlan = async (user: any) => {
     const histories = user.contentHistories ?? [];
@@ -101,7 +123,7 @@ Return ONLY the JSON array with 7 items, one for each day. No markdown, no expla
     });
 };
 
-export const createWeeklyContentPlan = async (userId: string, weekStart: Date, planData: any[]) => {
+export const createWeeklyContentPlan = async (userId: string, weekStart: Date, planData: any[], options?: { isManual?: boolean }) => {
     return prisma.$transaction(async (tx) => {
         const existing = await tx.contentPlan.findUnique({ where: { userId_weekStart: { userId, weekStart } } });
         if (existing) await tx.contentPlan.delete({ where: { id: existing.id } });
