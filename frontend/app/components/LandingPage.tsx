@@ -1,12 +1,151 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { Zap, Calendar, TrendingUp, Sparkles, ArrowRight, Check, Brain, Clock, Target } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const LandingPage = () => {
     const router = useRouter(); // initialize the router
     const howItWorksRef = useRef<HTMLDivElement>(null);
     const leftPanelRef = useRef<HTMLDivElement>(null);
+    const featureRefs = useRef<HTMLDivElement[]>([]);
+    const [activeFeature, setActiveFeature] = useState(0);
+    const [displayFeature, setDisplayFeature] = useState(activeFeature);
+    const [isFading, setIsFading] = useState(false);
+
+
+    const featureTitles = [
+        "AI Strategy",
+        "Weekly Planner",
+        "Content Memory",
+        "Time Saver",
+        "Progress Tracking",
+        "One-Click Refresh",
+    ];
+
+    const featureSubtitles = [
+        "Custom content plans for your niche",
+        "Get a week of content ideas instantly",
+        "Track themes & maintain variety",
+        "Spend less time planning, more creating",
+        "Visual dashboard shows consistency",
+        "Regenerate ideas instantly until perfect",
+    ];
+    const features = [
+        {
+            icon: Brain,
+            title: "AI Strategy",
+            subtitle: "Custom content plans generated for your specific profession.",
+            visual: (
+                <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Brain className="w-6 h-6 text-accent" strokeWidth={2.5} />
+                        <div className="h-3 bg-paper rounded w-24" />
+                    </div>
+                    <div className="space-y-3 flex-1">
+                        <div className="h-3 bg-paper rounded w-full" />
+                        <div className="h-3 bg-paper rounded w-5/6" />
+                        <div className="h-3 bg-paper rounded w-4/6" />
+                        <div className="mt-4 p-3 bg-accent/5 rounded-lg border border-accent/20">
+                            <div className="h-2 bg-accent/30 rounded w-32 mb-2" />
+                            <div className="h-2 bg-accent/20 rounded w-24" />
+                        </div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            icon: Calendar,
+            title: "Weekly Planner",
+            subtitle: "Get a full week of content ideas in 30 seconds.",
+            visual: (
+                <div className="relative bg-white border-2 border-border rounded-2xl p-4 h-full">
+                    <div className="grid grid-cols-7 gap-1 mb-3">
+                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
+                            <div key={i} className="text-center text-xs font-bold text-muted">{day}</div>
+                        ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                        {Array.from({ length: 21 }).map((_, i) => (
+                            <div key={i} className={`aspect-square rounded ${i % 7 < 5 ? 'bg-accent' : 'bg-paper'} ${i < 14 ? 'opacity-40' : ''}`} />
+                        ))}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            icon: Target,
+            title: "Content Memory",
+            subtitle: "AI tracks your themes to ensure variety.",
+            visual: (
+                <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-center">
+                    <div className="space-y-4">
+                        {['Tips & Tricks', 'Behind Scenes', 'Client Stories', 'Industry News'].map((theme, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                                <div className="w-3 h-3 rounded-full bg-accent" style={{ opacity: 1 - i * 0.2 }} />
+                                <div className="flex-1 h-2 bg-paper rounded" style={{ width: `${100 - i * 15}%` }} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            icon: Clock,
+            title: "Time Saver",
+            subtitle: "Spend less time planning, more time creating.",
+            visual: (
+                <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-center items-center">
+                    <div className="text-5xl font-bold text-accent mb-2">3hrs</div>
+                    <div className="text-sm text-muted mb-4">→ 5min</div>
+                    <div className="w-full h-2 bg-paper rounded-full overflow-hidden">
+                        <div className="h-full bg-accent rounded-full" style={{ width: '95%' }} />
+                    </div>
+                    <div className="text-xs text-muted mt-2">Time saved weekly</div>
+                </div>
+            ),
+        },
+        {
+            icon: TrendingUp,
+            title: "Progress Tracking",
+            subtitle: "Visual dashboard shows your consistency.",
+            visual: (
+                <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-end">
+                    <div className="flex items-end gap-2 h-32">
+                        {[40, 60, 45, 80, 65, 90, 100].map((height, i) => (
+                            <div key={i} className="flex-1 bg-accent rounded-t" style={{ height: `${height}%` }} />
+                        ))}
+                    </div>
+                    <div className="mt-4 text-center">
+                        <div className="text-2xl font-bold text-accent">87%</div>
+                        <div className="text-xs text-muted">Consistency rate</div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            icon: Zap,
+            title: "One-Click Refresh",
+            subtitle: "Regenerate ideas instantly until perfect.",
+            visual: (
+                <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-center items-center gap-4">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="w-full p-3 bg-paper rounded-lg border border-border flex items-center gap-3">
+                            <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
+                            <div className="flex-1 space-y-1">
+                                <div className="h-2 bg-white rounded w-full" />
+                                <div className="h-2 bg-white rounded w-3/4" />
+                            </div>
+                        </div>
+                    ))}
+                    <button className="w-full py-2 bg-accent text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
+                        <Zap className="w-4 h-4" strokeWidth={2.5} />
+                        Regenerate
+                    </button>
+                </div>
+            ),
+        },
+    ];
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -54,6 +193,24 @@ export const LandingPage = () => {
     const scrollToHowItWorks = () => {
         howItWorksRef.current?.scrollIntoView({ behavior: "smooth" });
     };
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    const index = featureRefs.current.indexOf(entry.target as HTMLDivElement);
+                    if (entry.isIntersecting && index !== -1) {
+                        setActiveFeature(index);             // Update left panel
+                        entry.target.classList.add("animate-slide-fade-in"); // Animate card
+                    }
+                });
+            },
+            { threshold: 0.5 }
+        );
+
+        featureRefs.current.forEach((card) => card && observer.observe(card));
+
+        return () => observer.disconnect();
+    }, []);
 
     // Intersection Observer for feature animations
     useEffect(() => {
@@ -74,6 +231,19 @@ export const LandingPage = () => {
 
         return () => observer.disconnect();
     }, []);
+    useEffect(() => {
+        // Start fade out
+        setIsFading(true);
+
+        const timeout = setTimeout(() => {
+            // Update displayed feature after fade out
+            setDisplayFeature(activeFeature);
+            setIsFading(false); // Fade in
+        }, 200); // 200ms fade-out duration
+
+        return () => clearTimeout(timeout);
+    }, [activeFeature]);
+
 
     return (
         <div className="min-h-screen bg-paper">
@@ -92,24 +262,27 @@ export const LandingPage = () => {
 
                         {/* Main Headline */}
                         <h1 className="text-6xl md:text-7xl font-bold text-ink mb-6 tracking-tight leading-none">
-                            Stop Staring at
+                            Plan a Week of Content
                             <br />
-                            <span className="text-accent">Blank Screens</span>
+                            <span className="relative inline-block text-accent">
+                                In 30 Seconds
+                                <span className="absolute left-0 bottom-1 w-full h-2 bg-accent/15"></span>
+                            </span>
                         </h1>
-
                         {/* Subheadline */}
                         <p className="text-2xl text-muted mb-12 max-w-2xl mx-auto leading-relaxed">
-                            Your AI content strategist that plans, schedules, and tracks every post.
-                            Turn ideas into reality in seconds.
+                            An AI content strategist that turns vague ideas into a
+                            <span className="text-ink font-semibold"> full, ready-to-post calendar </span>
+                            in minutes — not hours.
                         </p>
 
                         {/* CTA Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
                             <button
                                 className="btn-main text-lg px-8 py-4 group"
                                 onClick={() => router.push("/signup")} // navigate to signup
                             >
-                                Start Creating Free
+                                Start My Content Plan
                                 <ArrowRight
                                     className="w-5 h-5 inline ml-2 group-hover:translate-x-1 transition-transform"
                                     strokeWidth={2.5}
@@ -121,11 +294,14 @@ export const LandingPage = () => {
                             >
                                 See How It Works
                             </button>
-                        </div>
 
-                        {/* Social Proof */}
+                        </div>
+                        <p className="text-sm text-muted mb-4">
+                            No credit card<span className="mx-2">•</span>30 seconds to first plan
+                        </p>
+
                         <p className="text-sm text-muted">
-                            Join <span className="font-semibold text-ink">2,847 creators</span> who never run out of ideas
+                            Trusted by <span className="font-semibold text-ink">2,847 creators</span> to plan content in under 5 minutes
                         </p>
                     </div>
 
@@ -185,198 +361,53 @@ export const LandingPage = () => {
                     {/* Left Sticky Panel */}
                     <div
                         ref={leftPanelRef}
-                        className="sticky top-20 self-start py-24 left-panel"
+                        className="sticky top-20 self-start py-24 left-panel transition-all duration-300"
                     >
-                        <h2 className="text-4xl md:text-5xl font-bold text-ink mb-4 tracking-tight">
-                            Everything You Need to Win at Content
+                        <h2
+                            className={`text-4xl md:text-5xl font-bold text-ink mb-4 tracking-tight transition-opacity duration-200 ease-out ${isFading ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+                                }`}
+                        >
+                            {featureTitles[displayFeature]}
                         </h2>
-                        <p className="text-xl text-muted">Built for creators who mean business</p>
+                        <p
+                            className={`text-xl text-muted transition-opacity duration-200 ease-out ${isFading ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+                                }`}
+                        >
+                            {featureSubtitles[displayFeature]}
+                        </p>
                     </div>
-
 
                     {/* Right Scrollable Features */}
                     <div>
-                        {/* AI Strategy */}
-                        <div className="min-h-screen flex items-center py-12">
-                            <div className="card group cursor-pointer feature-card w-full" style={{ opacity: 0, transform: 'translateY(2rem)' }}>
-                                <div className="flex flex-col lg:flex-row items-center gap-8">
-                                    <div className="flex-1">
-                                        <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
-                                            <Brain className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
+                        {features.map((feature, i) => (
+                            <div
+                                key={i}
+                                ref={(el: any) => el && (featureRefs.current[i] = el)}
+                                className="min-h-screen flex items-center py-12"
+                            >
+                                <div
+                                    className="card group cursor-pointer feature-card w-full"
+                                    style={{ opacity: 0, transform: 'translateY(2rem)' }}
+                                >
+                                    <div className="flex flex-col lg:flex-row items-center gap-8">
+                                        <div className="flex-1">
+                                            <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
+                                                <feature.icon className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
+                                            </div>
+                                            <h3 className="text-3xl font-bold text-ink mb-4">{feature.title}</h3>
+                                            <p className="text-xl text-muted leading-relaxed mb-6">{feature.subtitle}</p>
                                         </div>
-                                        <h3 className="text-3xl font-bold text-ink mb-4">AI Strategy</h3>
-                                        <p className="text-xl text-muted leading-relaxed mb-6">Custom content plans generated for your specific profession.</p>
-                                    </div>
-                                    <div className="relative w-full lg:w-64 h-64">
-                                        <div className="absolute top-4 left-4 w-full h-full bg-accent/10 rounded-2xl" />
-                                        <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col">
-                                            <div className="flex items-center gap-3 mb-4">
-                                                <Brain className="w-6 h-6 text-accent" strokeWidth={2.5} />
-                                                <div className="h-3 bg-paper rounded w-24" />
-                                            </div>
-                                            <div className="space-y-3 flex-1">
-                                                <div className="h-3 bg-paper rounded w-full" />
-                                                <div className="h-3 bg-paper rounded w-5/6" />
-                                                <div className="h-3 bg-paper rounded w-4/6" />
-                                                <div className="mt-4 p-3 bg-accent/5 rounded-lg border border-accent/20">
-                                                    <div className="h-2 bg-accent/30 rounded w-32 mb-2" />
-                                                    <div className="h-2 bg-accent/20 rounded w-24" />
-                                                </div>
-                                            </div>
+                                        <div className="relative w-full lg:w-64 h-64">
+                                            {feature.visual}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* Weekly Planner */}
-                        <div className="min-h-screen flex items-center py-12">
-                            <div className="card group cursor-pointer feature-card w-full" style={{ opacity: 0, transform: 'translateY(2rem)' }}>
-                                <div className="flex flex-col lg:flex-row items-center gap-8">
-                                    <div className="flex-1">
-                                        <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
-                                            <Calendar className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
-                                        </div>
-                                        <h3 className="text-3xl font-bold text-ink mb-4">Weekly Planner</h3>
-                                        <p className="text-xl text-muted leading-relaxed mb-6">Get a full week of content ideas in 30 seconds.</p>
-                                    </div>
-                                    <div className="relative w-full lg:w-64 h-64">
-                                        <div className="absolute top-4 left-4 w-full h-full bg-accent/10 rounded-2xl" />
-                                        <div className="relative bg-white border-2 border-border rounded-2xl p-4 h-full">
-                                            <div className="grid grid-cols-7 gap-1 mb-3">
-                                                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
-                                                    <div key={i} className="text-center text-xs font-bold text-muted">{day}</div>
-                                                ))}
-                                            </div>
-                                            <div className="grid grid-cols-7 gap-1">
-                                                {Array.from({ length: 21 }).map((_, i) => (
-                                                    <div key={i} className={`aspect-square rounded ${i % 7 < 5 ? 'bg-accent' : 'bg-paper'} ${i < 14 ? 'opacity-40' : ''}`} />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Content Memory */}
-                        <div className="min-h-screen flex items-center py-12">
-                            <div className="card group cursor-pointer feature-card w-full" style={{ opacity: 0, transform: 'translateY(2rem)' }}>
-                                <div className="flex flex-col lg:flex-row items-center gap-8">
-                                    <div className="flex-1">
-                                        <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
-                                            <Target className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
-                                        </div>
-                                        <h3 className="text-3xl font-bold text-ink mb-4">Content Memory</h3>
-                                        <p className="text-xl text-muted leading-relaxed mb-6">AI tracks your themes to ensure variety.</p>
-                                    </div>
-                                    <div className="relative w-full lg:w-64 h-64">
-                                        <div className="absolute top-4 left-4 w-full h-full bg-accent/10 rounded-2xl" />
-                                        <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-center">
-                                            <div className="space-y-4">
-                                                {['Tips & Tricks', 'Behind Scenes', 'Client Stories', 'Industry News'].map((theme, i) => (
-                                                    <div key={i} className="flex items-center gap-3">
-                                                        <div className="w-3 h-3 rounded-full bg-accent" style={{ opacity: 1 - i * 0.2 }} />
-                                                        <div className="flex-1 h-2 bg-paper rounded" style={{ width: `${100 - i * 15}%` }} />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Time Saver */}
-                        <div className="min-h-screen flex items-center py-12">
-                            <div className="card group cursor-pointer feature-card w-full" style={{ opacity: 0, transform: 'translateY(2rem)' }}>
-                                <div className="flex flex-col lg:flex-row items-center gap-8">
-                                    <div className="flex-1">
-                                        <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
-                                            <Clock className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
-                                        </div>
-                                        <h3 className="text-3xl font-bold text-ink mb-4">Time Saver</h3>
-                                        <p className="text-xl text-muted leading-relaxed mb-6">Spend less time planning, more time creating.</p>
-                                    </div>
-                                    <div className="relative w-full lg:w-64 h-64">
-                                        <div className="absolute top-4 left-4 w-full h-full bg-accent/10 rounded-2xl" />
-                                        <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-center items-center">
-                                            <div className="text-5xl font-bold text-accent mb-2">3hrs</div>
-                                            <div className="text-sm text-muted mb-4">→ 5min</div>
-                                            <div className="w-full h-2 bg-paper rounded-full overflow-hidden">
-                                                <div className="h-full bg-accent rounded-full" style={{ width: '95%' }} />
-                                            </div>
-                                            <div className="text-xs text-muted mt-2">Time saved weekly</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Progress Tracking */}
-                        <div className="min-h-screen flex items-center py-12">
-                            <div className="card group cursor-pointer feature-card w-full" style={{ opacity: 0, transform: 'translateY(2rem)' }}>
-                                <div className="flex flex-col lg:flex-row items-center gap-8">
-                                    <div className="flex-1">
-                                        <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
-                                            <TrendingUp className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
-                                        </div>
-                                        <h3 className="text-3xl font-bold text-ink mb-4">Progress Tracking</h3>
-                                        <p className="text-xl text-muted leading-relaxed mb-6">Visual dashboard shows your consistency.</p>
-                                    </div>
-                                    <div className="relative w-full lg:w-64 h-64">
-                                        <div className="absolute top-4 left-4 w-full h-full bg-accent/10 rounded-2xl" />
-                                        <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-end">
-                                            <div className="flex items-end gap-2 h-32">
-                                                {[40, 60, 45, 80, 65, 90, 100].map((height, i) => (
-                                                    <div key={i} className="flex-1 bg-accent rounded-t" style={{ height: `${height}%` }} />
-                                                ))}
-                                            </div>
-                                            <div className="mt-4 text-center">
-                                                <div className="text-2xl font-bold text-accent">87%</div>
-                                                <div className="text-xs text-muted">Consistency rate</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* One-Click Refresh */}
-                        <div className="min-h-screen flex items-center py-12">
-                            <div className="card group cursor-pointer feature-card w-full" style={{ opacity: 0, transform: 'translateY(2rem)' }}>
-                                <div className="flex flex-col lg:flex-row items-center gap-8">
-                                    <div className="flex-1">
-                                        <div className="w-16 h-16 bg-paper rounded-lg flex items-center justify-center mb-6 group-hover:bg-accent transition-colors">
-                                            <Zap className="w-8 h-8 text-accent group-hover:text-white transition-colors" strokeWidth={2.5} />
-                                        </div>
-                                        <h3 className="text-3xl font-bold text-ink mb-4">One-Click Refresh</h3>
-                                        <p className="text-xl text-muted leading-relaxed mb-6">Regenerate ideas instantly until perfect.</p>
-                                    </div>
-                                    <div className="relative w-full lg:w-64 h-64">
-                                        <div className="absolute top-4 left-4 w-full h-full bg-accent/10 rounded-2xl" />
-                                        <div className="relative bg-white border-2 border-border rounded-2xl p-6 h-full flex flex-col justify-center items-center gap-4">
-                                            {[1, 2, 3].map((i) => (
-                                                <div key={i} className="w-full p-3 bg-paper rounded-lg border border-border flex items-center gap-3">
-                                                    <Sparkles className="w-4 h-4 text-accent" strokeWidth={2} />
-                                                    <div className="flex-1 space-y-1">
-                                                        <div className="h-2 bg-white rounded w-full" />
-                                                        <div className="h-2 bg-white rounded w-3/4" />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            <button className="w-full py-2 bg-accent text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2">
-                                                <Zap className="w-4 h-4" strokeWidth={2.5} />
-                                                Regenerate
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </div>
+
             {/* How It Works */}
             <div ref={howItWorksRef} className="py-24 bg-white border-y-2 border-border" id="how-it-works">
                 <div className="max-w-7xl mx-auto px-4">

@@ -14,7 +14,7 @@ export const generateWeek = async (req: Request, res: Response) => {
     const parseBody = generateWeekBodySchema.safeParse(req.body);
     if (!parseBody.success) return res.status(400).json({ error: parseBody.error.format() });
 
-    const { userId, isManual = false } = parseBody.data;
+    const { userId, isManual = true } = parseBody.data;
 
     const user = await userService.getUserById(userId);
     if (!user) return res.status(404).json({ error: "User not found" });

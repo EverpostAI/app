@@ -15,7 +15,6 @@ interface WeeklyPlannerListProps {
 }
 export const WeeklyPlannerList: React.FC<WeeklyPlannerListProps> = ({
     isWeekComplete,
-    generateWeeklyPlan,
     completionPercentage,
     completedCount,
     weeklyPlan,
@@ -38,22 +37,6 @@ export const WeeklyPlannerList: React.FC<WeeklyPlannerListProps> = ({
                     <p className="text-sm text-muted">
                         You’ve completed all planned content for this week.
                     </p>
-
-                    <div className="mt-4 flex gap-3">
-                        <button
-                            className="btn-main"
-                            onClick={generateWeeklyPlan}
-                        >
-                            Plan Next Week
-                        </button>
-
-                        <button
-                            className="btn-secondary"
-                            onClick={() => window.location.href = "/dashboard"}
-                        >
-                            View History
-                        </button>
-                    </div>
                 </div>
             )}
 

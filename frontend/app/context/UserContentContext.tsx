@@ -46,7 +46,6 @@ interface UserContentContextType {
 
     isGenerating: boolean;
     regeneratingIndex: number | null;
-    freePlanStart: any;
 }
 
 const UserContentContext = createContext<UserContentContextType | undefined>(undefined);
@@ -365,7 +364,6 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
 
                 isGenerating,
                 regeneratingIndex,
-                freePlanStart,
             }}
         >
             {children}
