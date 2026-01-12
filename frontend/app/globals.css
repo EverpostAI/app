@@ -169,3 +169,19 @@
 .animate-slide-rotate-out {
     animation: slideRotateOut 0.6s ease-in forwards;
 }
+
+@keyframes grow-bar {
+    from {
+        transform: scaleY(0);
+        transform-origin: bottom;
+    }
+
+    to {
+        transform: scaleY(1);
+        transform-origin: bottom;
+    }
+}
+
+.animate-grow-bar {
+    animation: grow-bar 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
