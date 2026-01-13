@@ -1,6 +1,6 @@
 "use client";
 import { WeeklyPlanner } from "./WeeklyPlanner";
-import ProtectedRoute from "../components/ProtectedRoute";
+import ProtectedRoute from "../protected/ProtectedRoute";
 
 export default function Home() {
     return (

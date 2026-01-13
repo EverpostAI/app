@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { WelcomeOnboarding } from "./WelcomeOnboarding";
 import { useUserContent } from "../context/UserContentContext";
-import ProtectedRoute from "../components/ProtectedRoute";
+import ProtectedRoute from "../protected/ProtectedRoute";
 
 const WelcomePage = () => {
     const router = useRouter();
