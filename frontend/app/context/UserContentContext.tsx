@@ -33,6 +33,7 @@ interface UserContentContextType {
     currentPlanId?: string;       // optional: useful for future edits
 
     contentHistory: string[];
+    fullContentHistory: any;
     planLockedMessage: any;
     setPlanLockedMessage: any;
     generateWeeklyPlan: (isManual?: boolean) => Promise<void>;
@@ -62,6 +63,7 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
     const [planLockedMessage, setPlanLockedMessage] = useState<string | null>(null);
 
     const [contentHistory, setContentHistory] = useState<string[]>([]);
+    const [fullContentHistory, setFullContentHistory] = useState();
     const [isGenerating, setIsGenerating] = useState(false);
     const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
 
@@ -123,6 +125,13 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
                 // ——— History ———
                 const history = await historyRes.json();
                 setContentHistory(history.map((h: any) => h.theme || h.idea || h));
+                setFullContentHistory(
+                    history.map((h: any) => ({
+                        id: h.id,
+                        text: h.theme || h.idea || "", // fallback to empty string if none
+                        createdAt: h.createdAt,
+                    }))
+                );
 
                 // ——— User profession ———
                 const userData = await userRes.json();
@@ -353,6 +362,7 @@ export const UserContentProvider = ({ children }: { children: ReactNode }) => {
                     setCurrentWeeklyPlan((prev) =>
                         prev ? { ...prev, posts } : { weekStart: new Date().toISOString(), posts }
                     ),
+                fullContentHistory,
                 setContentHistory,
                 setPlanLockedMessage,
                 planLockedMessage,

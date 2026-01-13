@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useUserContent } from "../context/UserContentContext";
-import { User, Briefcase, Calendar, TrendingUp, FileText } from "lucide-react";
+import { User, Briefcase, Calendar, TrendingUp, FileText, X } from "lucide-react";
 
 interface UserStats {
     totalContent: number;
@@ -10,17 +10,19 @@ interface UserStats {
 }
 
 const UserDashboard = () => {
-    const { planLockedMessage, setPlanLockedMessage, userId, userProfession, generateWeeklyPlan, weeklyPlan } = useUserContent();
+    const { fullContentHistory, setPlanLockedMessage, userProfession, generateWeeklyPlan } = useUserContent();
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [isShowingHistory, setIsShowingHistory] = useState<boolean>(false);
     const [stats] = useState<UserStats>({
         totalContent: 0,
         weeklyGoal: 7,
         completionRate: 0,
     });
     const [editLockedMessage, setEditLockedMessage] = useState<string | null>(null);
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
-    // Fetch user data from backend
+    // Fetch user data
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -36,7 +38,6 @@ const UserDashboard = () => {
                 setUser(data.user);
                 setLoading(false);
 
-                // Check weekly plan generation limit
                 if (data.user.freePlanStart) {
                     const lastPlanDate = new Date(data.user.freePlanStart);
                     const now = new Date();
@@ -47,7 +48,6 @@ const UserDashboard = () => {
                     }
                 }
 
-                // Check edit limit
                 if (data.user.editsThisWeek >= 1) {
                     setEditLockedMessage("Free plan users can only edit a post once per week.");
                 }
@@ -57,8 +57,8 @@ const UserDashboard = () => {
                 setLoading(false);
             });
     }, []);
-    const [timeLeft, setTimeLeft] = useState<number | null>(null); // milliseconds until next allowed plan
 
+    // Countdown for next allowed plan
     useEffect(() => {
         if (!user?.freePlanStart) return;
 
@@ -71,12 +71,12 @@ const UserDashboard = () => {
             if (diff <= 0) setPlanLockedMessage(null);
         };
 
-        updateCountdown(); // initial call
-        const interval = setInterval(updateCountdown, 1000); // update every second
-
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
         return () => clearInterval(interval);
     }, [user]);
 
+    const handleShowHistory = () => setIsShowingHistory((prev) => !prev);
 
     if (loading) {
         return (
@@ -98,10 +98,11 @@ const UserDashboard = () => {
             </div>
         );
     }
+
     return (
         <div className="min-h-screen bg-paper">
             <div className="max-w-7xl mx-auto px-4 py-12">
-                {/* Header Section */}
+                {/* Header */}
                 <div className="mb-12">
                     <div className="flex items-center gap-3 mb-3">
                         <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
@@ -158,7 +159,7 @@ const UserDashboard = () => {
                     </div>
                 </div>
 
-                {/* Profile Info Card */}
+                {/* Profile Info */}
                 <div className="card-flat border-2 border-border mb-6">
                     <h2 className="text-2xl font-bold text-ink mb-6">Profile Information</h2>
                     <div className="space-y-4">
@@ -167,9 +168,7 @@ const UserDashboard = () => {
                                 <User className="w-5 h-5 text-muted" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-muted uppercase tracking-wide">
-                                    Email
-                                </p>
+                                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Email</p>
                                 <p className="text-ink font-medium">{user.email}</p>
                             </div>
                         </div>
@@ -179,9 +178,7 @@ const UserDashboard = () => {
                                 <Briefcase className="w-5 h-5 text-muted" strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-muted uppercase tracking-wide">
-                                    Profession
-                                </p>
+                                <p className="text-xs font-semibold text-muted uppercase tracking-wide">Profession</p>
                                 <p className="text-ink font-medium">{user.profession || userProfession}</p>
                             </div>
                         </div>
@@ -191,9 +188,7 @@ const UserDashboard = () => {
                                 <span className="text-xs font-bold text-muted">#</span>
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-muted uppercase tracking-wide">
-                                    User ID
-                                </p>
+                                <p className="text-xs font-semibold text-muted uppercase tracking-wide">User ID</p>
                                 <p className="text-ink font-mono text-sm">{user.id}</p>
                             </div>
                         </div>
@@ -203,29 +198,45 @@ const UserDashboard = () => {
                 {/* Quick Actions */}
                 <div className="mt-8 flex gap-4">
                     <div className="flex flex-col">
-                        {timeLeft && timeLeft > 0 ? (
-                            <p className="text-sm text-red-500 mt-1">
-                                You can generate a new plan in {Math.floor(timeLeft / (1000 * 60 * 60))}h {Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))}m
-                            </p>
-                        ) : (
-                            <button
-                                className="btn-main"
-                                onClick={async () => {
-                                    await generateWeeklyPlan();
-                                }}
-                            >
-                                Generate New Plan
-                            </button>
-                        )}
-                    </div>
-
-
-                    <div className="flex flex-col">
-                        <button className="btn-secondary">View Content History</button>
+                        <button className="btn-secondary" onClick={handleShowHistory}>
+                            View Content History
+                        </button>
                         {editLockedMessage && <p className="text-sm text-red-500 mt-1">{editLockedMessage}</p>}
                     </div>
                 </div>
             </div>
+
+            {/* Content History Modal */}
+            {isShowingHistory && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-paper w-11/12 max-w-lg p-6 rounded-2xl shadow-lg relative">
+                        <button
+                            className="absolute top-4 right-4 text-muted hover:text-ink"
+                            onClick={handleShowHistory}
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        <h2 className="text-xl font-bold text-ink mb-4">Content History</h2>
+                        <div className="max-h-96 overflow-y-auto space-y-3">
+                            {fullContentHistory && fullContentHistory.length > 0 ? (
+                                fullContentHistory.map((item: any) => (
+                                    <div
+                                        key={item.id}
+                                        className="p-3 bg-paper border-2 border-border rounded-lg flex justify-between items-center hover:bg-accent/10 transition"
+                                    >
+                                        <p className="text-ink font-medium">{item.text}</p>
+                                        <span className="text-sm text-muted">
+                                            {new Date(item.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-muted">No content history available.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
