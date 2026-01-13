@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useUserContent } from "../context/UserContentContext";
 import { useRouter } from "next/navigation";
 

@@ -139,7 +139,7 @@
 /* Feature Card Entrance - from left with clockwise rotation */
 @keyframes slideRotateIn {
     0% {
-        opacity: 0;
+        opacity: .5;
         transform: translateX(-100px) rotate(-15deg);
     }
 

@@ -1,7 +1,7 @@
 "use client"
 import React from "react"
 import UserDashboard from "./UserDashboard"
-import ProtectedRoute from "../components/ProtectedRoute"
+import ProtectedRoute from "../protected/ProtectedRoute"
 
 const Dashboard = () => {
     return (
