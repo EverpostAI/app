@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { WelcomeOnboarding } from "../components/WelcomeOnboarding";
+import { WelcomeOnboarding } from "./WelcomeOnboarding";
 import { useUserContent } from "../context/UserContentContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 

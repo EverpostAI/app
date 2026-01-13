@@ -474,11 +474,34 @@ export const LandingPage = () => {
             // Update displayed feature after fade out
             setDisplayFeature(activeFeature);
             setIsFading(false); // Fade in
-        }, 200); // 200ms fade-out duration
+        }, 100); // 200ms fade-out duration
 
         return () => clearTimeout(timeout);
     }, [activeFeature]);
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            const featuresSection = document.querySelector(".features-section");
+            let speed = 0.6; // default scroll speed (60%)
 
+            if (featuresSection) {
+                const rect = featuresSection.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    // Inside Features section → slower scroll
+                    speed = 0.4;
+                }
+            }
+
+            e.preventDefault(); // prevent default fast scroll
+            window.scrollBy({
+                top: e.deltaY * speed,
+                left: 0,
+            });
+        };
+
+        window.addEventListener("wheel", handleWheel, { passive: false });
+
+        return () => window.removeEventListener("wheel", handleWheel);
+    }, []);
 
     return (
         <div className="min-h-screen bg-paper">
@@ -591,7 +614,7 @@ export const LandingPage = () => {
             </div>
 
             {/* Features Section */}
-            <div className="bg-paper relative">
+            <div className="bg-paper relative features-section">
                 {/* Connecting vertical line */}
                 <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-border hidden md:block"></div>
 
@@ -621,7 +644,7 @@ export const LandingPage = () => {
                             <div
                                 key={i}
                                 ref={(el: any) => el && (featureRefs.current[i] = el)}
-                                className="min-h-screen flex items-center py-12 relative"
+                                className={`min-h-screen flex items-center py-12 relative ${i === 0 ? 'pt-32' : ''}`}
                             >
                                 {/* Connecting line stub from center to card */}
                                 <div className="absolute -left-6 top-1/2 w-6 h-0.5 bg-border hidden md:block"></div>
